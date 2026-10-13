@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## Unreleased
 Enhancements:
 * [#1557][]: Add a `Context` option and context-aware `*Ctx` logging methods (`InfoCtx`, `ErrorCtx`, etc. on `Logger`; `InfowCtx`, `InfofCtx`, etc. on `SugaredLogger`) that extract fields from a `context.Context`.
+* [#1557][]: Add `zapcore.Entry.Context` and `zapcore.Entry.WithContext` so that Cores and hooks can access the `context.Context` passed to `*Ctx` logging methods, `Logger.CheckCtx`, and `zapslog.Handler`.
 
 [#1557]: https://github.com/uber-go/zap/pull/1557
 

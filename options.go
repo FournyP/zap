@@ -53,6 +53,9 @@ func WrapCore(f func(zapcore.Core) zapcore.Core) Option {
 // number of emitted logs. More complex side effects, including anything that
 // requires access to the Entry's structured fields, should be implemented as
 // a zapcore.Core instead. See zapcore.RegisterHooks for details.
+//
+// Entries logged with a context-aware method like InfoCtx carry that context,
+// available with [zapcore.Entry.Context].
 func Hooks(hooks ...func(zapcore.Entry) error) Option {
 	return optionFunc(func(log *Logger) {
 		log.core = zapcore.RegisterHooks(log.core, hooks...)
@@ -92,8 +95,11 @@ func Development() Option {
 // which context values become log fields; its result is prepended to any
 // fields passed at the log site.
 //
-// If no Context option is set, the *Ctx methods behave like their non-context
-// counterparts and only emit the fields passed at the log site.
+// If no Context option is set, the *Ctx methods only emit the fields passed at
+// the log site.
+//
+// Regardless of this option, the *Ctx methods attach ctx to the logged Entry,
+// so Cores and hooks can inspect it with [zapcore.Entry.Context].
 func Context(contextFunc func(ctx context.Context) []Field) Option {
 	return optionFunc(func(log *Logger) {
 		log.contextFunc = contextFunc

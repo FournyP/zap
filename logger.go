@@ -222,7 +222,18 @@ func (log *Logger) Level() zapcore.Level {
 // is enabled. It's a completely optional optimization; in high-performance
 // applications, Check can help avoid allocating a slice to hold fields.
 func (log *Logger) Check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
-	return log.check(lvl, msg)
+	return log.check(context.Background(), lvl, msg)
+}
+
+// CheckCtx is like Check, but associates ctx with the entry. The context is
+// available to Cores (in both Check and Write) and hooks via
+// [zapcore.Entry.Context].
+//
+// Unlike the *Ctx logging methods, CheckCtx does not apply the Context
+// option; fields passed to the returned CheckedEntry's Write method are
+// written as-is.
+func (log *Logger) CheckCtx(ctx context.Context, lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
+	return log.check(ctx, lvl, msg)
 }
 
 // Log logs a message at the specified level. The message includes any fields
@@ -230,7 +241,7 @@ func (log *Logger) Check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 // Any Fields that require  evaluation (such as Objects) are evaluated upon
 // invocation of Log.
 func (log *Logger) Log(lvl zapcore.Level, msg string, fields ...Field) {
-	if ce := log.check(lvl, msg); ce != nil {
+	if ce := log.check(context.Background(), lvl, msg); ce != nil {
 		ce.Write(fields...)
 	}
 }
@@ -239,7 +250,7 @@ func (log *Logger) Log(lvl zapcore.Level, msg string, fields ...Field) {
 // fields extracted from ctx by the Context option, any fields passed at the
 // log site, and any fields accumulated on the logger.
 func (log *Logger) LogCtx(ctx context.Context, lvl zapcore.Level, msg string, fields ...Field) {
-	if ce := log.check(lvl, msg); ce != nil {
+	if ce := log.check(ctx, lvl, msg); ce != nil {
 		ce.Write(log.generateFields(ctx, fields...)...)
 	}
 }
@@ -247,7 +258,7 @@ func (log *Logger) LogCtx(ctx context.Context, lvl zapcore.Level, msg string, fi
 // Debug logs a message at DebugLevel. The message includes any fields passed
 // at the log site, as well as any fields accumulated on the logger.
 func (log *Logger) Debug(msg string, fields ...Field) {
-	if ce := log.check(DebugLevel, msg); ce != nil {
+	if ce := log.check(context.Background(), DebugLevel, msg); ce != nil {
 		ce.Write(fields...)
 	}
 }
@@ -256,7 +267,7 @@ func (log *Logger) Debug(msg string, fields ...Field) {
 // extracted from ctx by the Context option, any fields passed at the log
 // site, and any fields accumulated on the logger.
 func (log *Logger) DebugCtx(ctx context.Context, msg string, fields ...Field) {
-	if ce := log.check(DebugLevel, msg); ce != nil {
+	if ce := log.check(ctx, DebugLevel, msg); ce != nil {
 		ce.Write(log.generateFields(ctx, fields...)...)
 	}
 }
@@ -264,7 +275,7 @@ func (log *Logger) DebugCtx(ctx context.Context, msg string, fields ...Field) {
 // Info logs a message at InfoLevel. The message includes any fields passed
 // at the log site, as well as any fields accumulated on the logger.
 func (log *Logger) Info(msg string, fields ...Field) {
-	if ce := log.check(InfoLevel, msg); ce != nil {
+	if ce := log.check(context.Background(), InfoLevel, msg); ce != nil {
 		ce.Write(fields...)
 	}
 }
@@ -273,7 +284,7 @@ func (log *Logger) Info(msg string, fields ...Field) {
 // extracted from ctx by the Context option, any fields passed at the log
 // site, and any fields accumulated on the logger.
 func (log *Logger) InfoCtx(ctx context.Context, msg string, fields ...Field) {
-	if ce := log.check(InfoLevel, msg); ce != nil {
+	if ce := log.check(ctx, InfoLevel, msg); ce != nil {
 		ce.Write(log.generateFields(ctx, fields...)...)
 	}
 }
@@ -281,7 +292,7 @@ func (log *Logger) InfoCtx(ctx context.Context, msg string, fields ...Field) {
 // Warn logs a message at WarnLevel. The message includes any fields passed
 // at the log site, as well as any fields accumulated on the logger.
 func (log *Logger) Warn(msg string, fields ...Field) {
-	if ce := log.check(WarnLevel, msg); ce != nil {
+	if ce := log.check(context.Background(), WarnLevel, msg); ce != nil {
 		ce.Write(fields...)
 	}
 }
@@ -290,7 +301,7 @@ func (log *Logger) Warn(msg string, fields ...Field) {
 // extracted from ctx by the Context option, any fields passed at the log
 // site, and any fields accumulated on the logger.
 func (log *Logger) WarnCtx(ctx context.Context, msg string, fields ...Field) {
-	if ce := log.check(WarnLevel, msg); ce != nil {
+	if ce := log.check(ctx, WarnLevel, msg); ce != nil {
 		ce.Write(log.generateFields(ctx, fields...)...)
 	}
 }
@@ -298,7 +309,7 @@ func (log *Logger) WarnCtx(ctx context.Context, msg string, fields ...Field) {
 // Error logs a message at ErrorLevel. The message includes any fields passed
 // at the log site, as well as any fields accumulated on the logger.
 func (log *Logger) Error(msg string, fields ...Field) {
-	if ce := log.check(ErrorLevel, msg); ce != nil {
+	if ce := log.check(context.Background(), ErrorLevel, msg); ce != nil {
 		ce.Write(fields...)
 	}
 }
@@ -307,7 +318,7 @@ func (log *Logger) Error(msg string, fields ...Field) {
 // extracted from ctx by the Context option, any fields passed at the log
 // site, and any fields accumulated on the logger.
 func (log *Logger) ErrorCtx(ctx context.Context, msg string, fields ...Field) {
-	if ce := log.check(ErrorLevel, msg); ce != nil {
+	if ce := log.check(ctx, ErrorLevel, msg); ce != nil {
 		ce.Write(log.generateFields(ctx, fields...)...)
 	}
 }
@@ -319,7 +330,7 @@ func (log *Logger) ErrorCtx(ctx context.Context, msg string, fields ...Field) {
 // "development panic"). This is useful for catching errors that are
 // recoverable, but shouldn't ever happen.
 func (log *Logger) DPanic(msg string, fields ...Field) {
-	if ce := log.check(DPanicLevel, msg); ce != nil {
+	if ce := log.check(context.Background(), DPanicLevel, msg); ce != nil {
 		ce.Write(fields...)
 	}
 }
@@ -332,7 +343,7 @@ func (log *Logger) DPanic(msg string, fields ...Field) {
 // "development panic"). This is useful for catching errors that are
 // recoverable, but shouldn't ever happen.
 func (log *Logger) DPanicCtx(ctx context.Context, msg string, fields ...Field) {
-	if ce := log.check(DPanicLevel, msg); ce != nil {
+	if ce := log.check(ctx, DPanicLevel, msg); ce != nil {
 		ce.Write(log.generateFields(ctx, fields...)...)
 	}
 }
@@ -342,7 +353,7 @@ func (log *Logger) DPanicCtx(ctx context.Context, msg string, fields ...Field) {
 //
 // The logger then panics, even if logging at PanicLevel is disabled.
 func (log *Logger) Panic(msg string, fields ...Field) {
-	if ce := log.check(PanicLevel, msg); ce != nil {
+	if ce := log.check(context.Background(), PanicLevel, msg); ce != nil {
 		ce.Write(fields...)
 	}
 }
@@ -353,7 +364,7 @@ func (log *Logger) Panic(msg string, fields ...Field) {
 //
 // The logger then panics, even if logging at PanicLevel is disabled.
 func (log *Logger) PanicCtx(ctx context.Context, msg string, fields ...Field) {
-	if ce := log.check(PanicLevel, msg); ce != nil {
+	if ce := log.check(ctx, PanicLevel, msg); ce != nil {
 		ce.Write(log.generateFields(ctx, fields...)...)
 	}
 }
@@ -364,7 +375,7 @@ func (log *Logger) PanicCtx(ctx context.Context, msg string, fields ...Field) {
 // The logger then calls os.Exit(1), even if logging at FatalLevel is
 // disabled.
 func (log *Logger) Fatal(msg string, fields ...Field) {
-	if ce := log.check(FatalLevel, msg); ce != nil {
+	if ce := log.check(context.Background(), FatalLevel, msg); ce != nil {
 		ce.Write(fields...)
 	}
 }
@@ -376,7 +387,7 @@ func (log *Logger) Fatal(msg string, fields ...Field) {
 // The logger then calls os.Exit(1), even if logging at FatalLevel is
 // disabled.
 func (log *Logger) FatalCtx(ctx context.Context, msg string, fields ...Field) {
-	if ce := log.check(FatalLevel, msg); ce != nil {
+	if ce := log.check(ctx, FatalLevel, msg); ce != nil {
 		ce.Write(log.generateFields(ctx, fields...)...)
 	}
 }
@@ -403,7 +414,7 @@ func (log *Logger) clone() *Logger {
 	return &clone
 }
 
-func (log *Logger) check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
+func (log *Logger) check(ctx context.Context, lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 	// Logger.check must always be called directly by a method in the
 	// Logger interface (e.g., Check, Info, Fatal).
 	// This skips Logger.check and the Info/Fatal/Check/etc. method that
@@ -423,7 +434,7 @@ func (log *Logger) check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 		Time:       log.clock.Now(),
 		Level:      lvl,
 		Message:    msg,
-	}
+	}.WithContext(ctx)
 	ce := log.core.Check(ent, nil)
 	willWrite := ce != nil
 

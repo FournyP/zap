@@ -24,6 +24,7 @@ package zapslog
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"log/slog"
 	"sync"
@@ -53,6 +54,24 @@ func TestAddCaller(t *testing.T) {
 		entry.Caller.String(),
 		"Unexpected caller annotation.",
 	)
+}
+
+type ctxKey struct{}
+
+func TestContextPropagation(t *testing.T) {
+	t.Parallel()
+
+	fac, logs := observer.New(zapcore.DebugLevel)
+	sl := slog.New(NewHandler(fac))
+	ctx := context.WithValue(context.Background(), ctxKey{}, "value")
+
+	sl.InfoContext(ctx, "msg")
+	sl.Info("msg")
+
+	entries := logs.AllUntimed()
+	require.Len(t, entries, 2)
+	assert.Equal(t, ctx, entries[0].Entry.Context(), "Context should be available to the core.")
+	assert.Equal(t, context.Background(), entries[1].Entry.Context())
 }
 
 func TestAddStack(t *testing.T) {
