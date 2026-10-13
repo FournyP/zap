@@ -141,7 +141,7 @@ func (h *Handler) Handle(ctx context.Context, record slog.Record) error {
 		Time:       record.Time,
 		Message:    record.Message,
 		LoggerName: h.name,
-	}
+	}.WithContext(ctx)
 	ce := h.core.Check(ent, nil)
 	if ce == nil {
 		return nil

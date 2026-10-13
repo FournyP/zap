@@ -141,73 +141,73 @@ func (s *SugaredLogger) Level() zapcore.Level {
 // Log logs the provided arguments at provided level.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) Log(lvl zapcore.Level, args ...interface{}) {
-	s.log(lvl, "", args, nil)
+	s.log(context.Background(), lvl, "", args, nil)
 }
 
 // LogCtx logs the provided arguments at provided level. Any fields extracted
 // from ctx by the Context option are added to the entry.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) LogCtx(ctx context.Context, lvl zapcore.Level, args ...interface{}) {
-	s.log(lvl, "", args, s.ctxFields(ctx))
+	s.log(ctx, lvl, "", args, nil)
 }
 
 // Debug logs the provided arguments at [DebugLevel].
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) Debug(args ...interface{}) {
-	s.log(DebugLevel, "", args, nil)
+	s.log(context.Background(), DebugLevel, "", args, nil)
 }
 
 // DebugCtx logs the provided arguments at [DebugLevel]. Any fields extracted
 // from ctx by the Context option are added to the entry.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) DebugCtx(ctx context.Context, args ...interface{}) {
-	s.log(DebugLevel, "", args, s.ctxFields(ctx))
+	s.log(ctx, DebugLevel, "", args, nil)
 }
 
 // Info logs the provided arguments at [InfoLevel].
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) Info(args ...interface{}) {
-	s.log(InfoLevel, "", args, nil)
+	s.log(context.Background(), InfoLevel, "", args, nil)
 }
 
 // InfoCtx logs the provided arguments at [InfoLevel]. Any fields extracted
 // from ctx by the Context option are added to the entry.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) InfoCtx(ctx context.Context, args ...interface{}) {
-	s.log(InfoLevel, "", args, s.ctxFields(ctx))
+	s.log(ctx, InfoLevel, "", args, nil)
 }
 
 // Warn logs the provided arguments at [WarnLevel].
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) Warn(args ...interface{}) {
-	s.log(WarnLevel, "", args, nil)
+	s.log(context.Background(), WarnLevel, "", args, nil)
 }
 
 // WarnCtx logs the provided arguments at [WarnLevel]. Any fields extracted
 // from ctx by the Context option are added to the entry.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) WarnCtx(ctx context.Context, args ...interface{}) {
-	s.log(WarnLevel, "", args, s.ctxFields(ctx))
+	s.log(ctx, WarnLevel, "", args, nil)
 }
 
 // Error logs the provided arguments at [ErrorLevel].
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) Error(args ...interface{}) {
-	s.log(ErrorLevel, "", args, nil)
+	s.log(context.Background(), ErrorLevel, "", args, nil)
 }
 
 // ErrorCtx logs the provided arguments at [ErrorLevel]. Any fields extracted
 // from ctx by the Context option are added to the entry.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) ErrorCtx(ctx context.Context, args ...interface{}) {
-	s.log(ErrorLevel, "", args, s.ctxFields(ctx))
+	s.log(ctx, ErrorLevel, "", args, nil)
 }
 
 // DPanic logs the provided arguments at [DPanicLevel].
 // In development, the logger then panics. (See [DPanicLevel] for details.)
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) DPanic(args ...interface{}) {
-	s.log(DPanicLevel, "", args, nil)
+	s.log(context.Background(), DPanicLevel, "", args, nil)
 }
 
 // DPanicCtx logs the provided arguments at [DPanicLevel]. Any fields extracted
@@ -215,105 +215,105 @@ func (s *SugaredLogger) DPanic(args ...interface{}) {
 // In development, the logger then panics. (See [DPanicLevel] for details.)
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) DPanicCtx(ctx context.Context, args ...interface{}) {
-	s.log(DPanicLevel, "", args, s.ctxFields(ctx))
+	s.log(ctx, DPanicLevel, "", args, nil)
 }
 
 // Panic constructs a message with the provided arguments and panics.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) Panic(args ...interface{}) {
-	s.log(PanicLevel, "", args, nil)
+	s.log(context.Background(), PanicLevel, "", args, nil)
 }
 
 // PanicCtx constructs a message with the provided arguments and panics. Any
 // fields extracted from ctx by the Context option are added to the entry.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) PanicCtx(ctx context.Context, args ...interface{}) {
-	s.log(PanicLevel, "", args, s.ctxFields(ctx))
+	s.log(ctx, PanicLevel, "", args, nil)
 }
 
 // Fatal constructs a message with the provided arguments and calls os.Exit.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) Fatal(args ...interface{}) {
-	s.log(FatalLevel, "", args, nil)
+	s.log(context.Background(), FatalLevel, "", args, nil)
 }
 
 // FatalCtx constructs a message with the provided arguments and calls os.Exit.
 // Any fields extracted from ctx by the Context option are added to the entry.
 // Spaces are added between arguments when neither is a string.
 func (s *SugaredLogger) FatalCtx(ctx context.Context, args ...interface{}) {
-	s.log(FatalLevel, "", args, s.ctxFields(ctx))
+	s.log(ctx, FatalLevel, "", args, nil)
 }
 
 // Logf formats the message according to the format specifier
 // and logs it at provided level.
 func (s *SugaredLogger) Logf(lvl zapcore.Level, template string, args ...interface{}) {
-	s.log(lvl, template, args, nil)
+	s.log(context.Background(), lvl, template, args, nil)
 }
 
 // LogfCtx formats the message according to the format specifier
 // and logs it at provided level. Any fields extracted from ctx by the Context
 // option are added to the entry.
 func (s *SugaredLogger) LogfCtx(ctx context.Context, lvl zapcore.Level, template string, args ...interface{}) {
-	s.log(lvl, template, args, s.ctxFields(ctx))
+	s.log(ctx, lvl, template, args, nil)
 }
 
 // Debugf formats the message according to the format specifier
 // and logs it at [DebugLevel].
 func (s *SugaredLogger) Debugf(template string, args ...interface{}) {
-	s.log(DebugLevel, template, args, nil)
+	s.log(context.Background(), DebugLevel, template, args, nil)
 }
 
 // DebugfCtx formats the message according to the format specifier
 // and logs it at [DebugLevel]. Any fields extracted from ctx by the Context
 // option are added to the entry.
 func (s *SugaredLogger) DebugfCtx(ctx context.Context, template string, args ...interface{}) {
-	s.log(DebugLevel, template, args, s.ctxFields(ctx))
+	s.log(ctx, DebugLevel, template, args, nil)
 }
 
 // Infof formats the message according to the format specifier
 // and logs it at [InfoLevel].
 func (s *SugaredLogger) Infof(template string, args ...interface{}) {
-	s.log(InfoLevel, template, args, nil)
+	s.log(context.Background(), InfoLevel, template, args, nil)
 }
 
 // InfofCtx formats the message according to the format specifier
 // and logs it at [InfoLevel]. Any fields extracted from ctx by the Context
 // option are added to the entry.
 func (s *SugaredLogger) InfofCtx(ctx context.Context, template string, args ...interface{}) {
-	s.log(InfoLevel, template, args, s.ctxFields(ctx))
+	s.log(ctx, InfoLevel, template, args, nil)
 }
 
 // Warnf formats the message according to the format specifier
 // and logs it at [WarnLevel].
 func (s *SugaredLogger) Warnf(template string, args ...interface{}) {
-	s.log(WarnLevel, template, args, nil)
+	s.log(context.Background(), WarnLevel, template, args, nil)
 }
 
 // WarnfCtx formats the message according to the format specifier
 // and logs it at [WarnLevel]. Any fields extracted from ctx by the Context
 // option are added to the entry.
 func (s *SugaredLogger) WarnfCtx(ctx context.Context, template string, args ...interface{}) {
-	s.log(WarnLevel, template, args, s.ctxFields(ctx))
+	s.log(ctx, WarnLevel, template, args, nil)
 }
 
 // Errorf formats the message according to the format specifier
 // and logs it at [ErrorLevel].
 func (s *SugaredLogger) Errorf(template string, args ...interface{}) {
-	s.log(ErrorLevel, template, args, nil)
+	s.log(context.Background(), ErrorLevel, template, args, nil)
 }
 
 // ErrorfCtx formats the message according to the format specifier
 // and logs it at [ErrorLevel]. Any fields extracted from ctx by the Context
 // option are added to the entry.
 func (s *SugaredLogger) ErrorfCtx(ctx context.Context, template string, args ...interface{}) {
-	s.log(ErrorLevel, template, args, s.ctxFields(ctx))
+	s.log(ctx, ErrorLevel, template, args, nil)
 }
 
 // DPanicf formats the message according to the format specifier
 // and logs it at [DPanicLevel].
 // In development, the logger then panics. (See [DPanicLevel] for details.)
 func (s *SugaredLogger) DPanicf(template string, args ...interface{}) {
-	s.log(DPanicLevel, template, args, nil)
+	s.log(context.Background(), DPanicLevel, template, args, nil)
 }
 
 // DPanicfCtx formats the message according to the format specifier
@@ -321,46 +321,46 @@ func (s *SugaredLogger) DPanicf(template string, args ...interface{}) {
 // option are added to the entry.
 // In development, the logger then panics. (See [DPanicLevel] for details.)
 func (s *SugaredLogger) DPanicfCtx(ctx context.Context, template string, args ...interface{}) {
-	s.log(DPanicLevel, template, args, s.ctxFields(ctx))
+	s.log(ctx, DPanicLevel, template, args, nil)
 }
 
 // Panicf formats the message according to the format specifier
 // and panics.
 func (s *SugaredLogger) Panicf(template string, args ...interface{}) {
-	s.log(PanicLevel, template, args, nil)
+	s.log(context.Background(), PanicLevel, template, args, nil)
 }
 
 // PanicfCtx formats the message according to the format specifier
 // and panics. Any fields extracted from ctx by the Context option are added to
 // the entry.
 func (s *SugaredLogger) PanicfCtx(ctx context.Context, template string, args ...interface{}) {
-	s.log(PanicLevel, template, args, s.ctxFields(ctx))
+	s.log(ctx, PanicLevel, template, args, nil)
 }
 
 // Fatalf formats the message according to the format specifier
 // and calls os.Exit.
 func (s *SugaredLogger) Fatalf(template string, args ...interface{}) {
-	s.log(FatalLevel, template, args, nil)
+	s.log(context.Background(), FatalLevel, template, args, nil)
 }
 
 // FatalfCtx formats the message according to the format specifier
 // and calls os.Exit. Any fields extracted from ctx by the Context option are
 // added to the entry.
 func (s *SugaredLogger) FatalfCtx(ctx context.Context, template string, args ...interface{}) {
-	s.log(FatalLevel, template, args, s.ctxFields(ctx))
+	s.log(ctx, FatalLevel, template, args, nil)
 }
 
 // Logw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
 func (s *SugaredLogger) Logw(lvl zapcore.Level, msg string, keysAndValues ...interface{}) {
-	s.log(lvl, msg, nil, keysAndValues)
+	s.log(context.Background(), lvl, msg, nil, keysAndValues)
 }
 
 // LogwCtx logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With. Any fields extracted from ctx by the
 // Context option are prepended to the key-value pairs.
 func (s *SugaredLogger) LogwCtx(ctx context.Context, lvl zapcore.Level, msg string, keysAndValues ...interface{}) {
-	s.log(lvl, msg, nil, append(s.ctxFields(ctx), keysAndValues...))
+	s.log(ctx, lvl, msg, nil, keysAndValues)
 }
 
 // Debugw logs a message with some additional context. The variadic key-value
@@ -370,60 +370,60 @@ func (s *SugaredLogger) LogwCtx(ctx context.Context, lvl zapcore.Level, msg stri
 //
 //	s.With(keysAndValues).Debug(msg)
 func (s *SugaredLogger) Debugw(msg string, keysAndValues ...interface{}) {
-	s.log(DebugLevel, msg, nil, keysAndValues)
+	s.log(context.Background(), DebugLevel, msg, nil, keysAndValues)
 }
 
 // DebugwCtx logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With. Any fields extracted from ctx by the
 // Context option are prepended to the key-value pairs.
 func (s *SugaredLogger) DebugwCtx(ctx context.Context, msg string, keysAndValues ...interface{}) {
-	s.log(DebugLevel, msg, nil, append(s.ctxFields(ctx), keysAndValues...))
+	s.log(ctx, DebugLevel, msg, nil, keysAndValues)
 }
 
 // Infow logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
 func (s *SugaredLogger) Infow(msg string, keysAndValues ...interface{}) {
-	s.log(InfoLevel, msg, nil, keysAndValues)
+	s.log(context.Background(), InfoLevel, msg, nil, keysAndValues)
 }
 
 // InfowCtx logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With. Any fields extracted from ctx by the
 // Context option are prepended to the key-value pairs.
 func (s *SugaredLogger) InfowCtx(ctx context.Context, msg string, keysAndValues ...interface{}) {
-	s.log(InfoLevel, msg, nil, append(s.ctxFields(ctx), keysAndValues...))
+	s.log(ctx, InfoLevel, msg, nil, keysAndValues)
 }
 
 // Warnw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
 func (s *SugaredLogger) Warnw(msg string, keysAndValues ...interface{}) {
-	s.log(WarnLevel, msg, nil, keysAndValues)
+	s.log(context.Background(), WarnLevel, msg, nil, keysAndValues)
 }
 
 // WarnwCtx logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With. Any fields extracted from ctx by the
 // Context option are prepended to the key-value pairs.
 func (s *SugaredLogger) WarnwCtx(ctx context.Context, msg string, keysAndValues ...interface{}) {
-	s.log(WarnLevel, msg, nil, append(s.ctxFields(ctx), keysAndValues...))
+	s.log(ctx, WarnLevel, msg, nil, keysAndValues)
 }
 
 // Errorw logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With.
 func (s *SugaredLogger) Errorw(msg string, keysAndValues ...interface{}) {
-	s.log(ErrorLevel, msg, nil, keysAndValues)
+	s.log(context.Background(), ErrorLevel, msg, nil, keysAndValues)
 }
 
 // ErrorwCtx logs a message with some additional context. The variadic key-value
 // pairs are treated as they are in With. Any fields extracted from ctx by the
 // Context option are prepended to the key-value pairs.
 func (s *SugaredLogger) ErrorwCtx(ctx context.Context, msg string, keysAndValues ...interface{}) {
-	s.log(ErrorLevel, msg, nil, append(s.ctxFields(ctx), keysAndValues...))
+	s.log(ctx, ErrorLevel, msg, nil, keysAndValues)
 }
 
 // DPanicw logs a message with some additional context. In development, the
 // logger then panics. (See DPanicLevel for details.) The variadic key-value
 // pairs are treated as they are in With.
 func (s *SugaredLogger) DPanicw(msg string, keysAndValues ...interface{}) {
-	s.log(DPanicLevel, msg, nil, keysAndValues)
+	s.log(context.Background(), DPanicLevel, msg, nil, keysAndValues)
 }
 
 // DPanicwCtx logs a message with some additional context. In development, the
@@ -431,13 +431,13 @@ func (s *SugaredLogger) DPanicw(msg string, keysAndValues ...interface{}) {
 // pairs are treated as they are in With. Any fields extracted from ctx by the
 // Context option are prepended to the key-value pairs.
 func (s *SugaredLogger) DPanicwCtx(ctx context.Context, msg string, keysAndValues ...interface{}) {
-	s.log(DPanicLevel, msg, nil, append(s.ctxFields(ctx), keysAndValues...))
+	s.log(ctx, DPanicLevel, msg, nil, keysAndValues)
 }
 
 // Panicw logs a message with some additional context, then panics. The
 // variadic key-value pairs are treated as they are in With.
 func (s *SugaredLogger) Panicw(msg string, keysAndValues ...interface{}) {
-	s.log(PanicLevel, msg, nil, keysAndValues)
+	s.log(context.Background(), PanicLevel, msg, nil, keysAndValues)
 }
 
 // PanicwCtx logs a message with some additional context, then panics. The
@@ -445,13 +445,13 @@ func (s *SugaredLogger) Panicw(msg string, keysAndValues ...interface{}) {
 // extracted from ctx by the Context option are prepended to the key-value
 // pairs.
 func (s *SugaredLogger) PanicwCtx(ctx context.Context, msg string, keysAndValues ...interface{}) {
-	s.log(PanicLevel, msg, nil, append(s.ctxFields(ctx), keysAndValues...))
+	s.log(ctx, PanicLevel, msg, nil, keysAndValues)
 }
 
 // Fatalw logs a message with some additional context, then calls os.Exit. The
 // variadic key-value pairs are treated as they are in With.
 func (s *SugaredLogger) Fatalw(msg string, keysAndValues ...interface{}) {
-	s.log(FatalLevel, msg, nil, keysAndValues)
+	s.log(context.Background(), FatalLevel, msg, nil, keysAndValues)
 }
 
 // FatalwCtx logs a message with some additional context, then calls os.Exit.
@@ -459,79 +459,79 @@ func (s *SugaredLogger) Fatalw(msg string, keysAndValues ...interface{}) {
 // extracted from ctx by the Context option are prepended to the key-value
 // pairs.
 func (s *SugaredLogger) FatalwCtx(ctx context.Context, msg string, keysAndValues ...interface{}) {
-	s.log(FatalLevel, msg, nil, append(s.ctxFields(ctx), keysAndValues...))
+	s.log(ctx, FatalLevel, msg, nil, keysAndValues)
 }
 
 // Logln logs a message at provided level.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) Logln(lvl zapcore.Level, args ...interface{}) {
-	s.logln(lvl, args, nil)
+	s.logln(context.Background(), lvl, args, nil)
 }
 
 // LoglnCtx logs a message at provided level. Any fields extracted from ctx by
 // the Context option are added to the entry.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) LoglnCtx(ctx context.Context, lvl zapcore.Level, args ...interface{}) {
-	s.logln(lvl, args, s.ctxFields(ctx))
+	s.logln(ctx, lvl, args, nil)
 }
 
 // Debugln logs a message at [DebugLevel].
 // Spaces are always added between arguments.
 func (s *SugaredLogger) Debugln(args ...interface{}) {
-	s.logln(DebugLevel, args, nil)
+	s.logln(context.Background(), DebugLevel, args, nil)
 }
 
 // DebuglnCtx logs a message at [DebugLevel]. Any fields extracted from ctx by
 // the Context option are added to the entry.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) DebuglnCtx(ctx context.Context, args ...interface{}) {
-	s.logln(DebugLevel, args, s.ctxFields(ctx))
+	s.logln(ctx, DebugLevel, args, nil)
 }
 
 // Infoln logs a message at [InfoLevel].
 // Spaces are always added between arguments.
 func (s *SugaredLogger) Infoln(args ...interface{}) {
-	s.logln(InfoLevel, args, nil)
+	s.logln(context.Background(), InfoLevel, args, nil)
 }
 
 // InfolnCtx logs a message at [InfoLevel]. Any fields extracted from ctx by
 // the Context option are added to the entry.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) InfolnCtx(ctx context.Context, args ...interface{}) {
-	s.logln(InfoLevel, args, s.ctxFields(ctx))
+	s.logln(ctx, InfoLevel, args, nil)
 }
 
 // Warnln logs a message at [WarnLevel].
 // Spaces are always added between arguments.
 func (s *SugaredLogger) Warnln(args ...interface{}) {
-	s.logln(WarnLevel, args, nil)
+	s.logln(context.Background(), WarnLevel, args, nil)
 }
 
 // WarnlnCtx logs a message at [WarnLevel]. Any fields extracted from ctx by
 // the Context option are added to the entry.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) WarnlnCtx(ctx context.Context, args ...interface{}) {
-	s.logln(WarnLevel, args, s.ctxFields(ctx))
+	s.logln(ctx, WarnLevel, args, nil)
 }
 
 // Errorln logs a message at [ErrorLevel].
 // Spaces are always added between arguments.
 func (s *SugaredLogger) Errorln(args ...interface{}) {
-	s.logln(ErrorLevel, args, nil)
+	s.logln(context.Background(), ErrorLevel, args, nil)
 }
 
 // ErrorlnCtx logs a message at [ErrorLevel]. Any fields extracted from ctx by
 // the Context option are added to the entry.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) ErrorlnCtx(ctx context.Context, args ...interface{}) {
-	s.logln(ErrorLevel, args, s.ctxFields(ctx))
+	s.logln(ctx, ErrorLevel, args, nil)
 }
 
 // DPanicln logs a message at [DPanicLevel].
 // In development, the logger then panics. (See [DPanicLevel] for details.)
 // Spaces are always added between arguments.
 func (s *SugaredLogger) DPanicln(args ...interface{}) {
-	s.logln(DPanicLevel, args, nil)
+	s.logln(context.Background(), DPanicLevel, args, nil)
 }
 
 // DPaniclnCtx logs a message at [DPanicLevel]. Any fields extracted from ctx by
@@ -539,33 +539,33 @@ func (s *SugaredLogger) DPanicln(args ...interface{}) {
 // In development, the logger then panics. (See [DPanicLevel] for details.)
 // Spaces are always added between arguments.
 func (s *SugaredLogger) DPaniclnCtx(ctx context.Context, args ...interface{}) {
-	s.logln(DPanicLevel, args, s.ctxFields(ctx))
+	s.logln(ctx, DPanicLevel, args, nil)
 }
 
 // Panicln logs a message at [PanicLevel] and panics.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) Panicln(args ...interface{}) {
-	s.logln(PanicLevel, args, nil)
+	s.logln(context.Background(), PanicLevel, args, nil)
 }
 
 // PaniclnCtx logs a message at [PanicLevel] and panics. Any fields extracted
 // from ctx by the Context option are added to the entry.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) PaniclnCtx(ctx context.Context, args ...interface{}) {
-	s.logln(PanicLevel, args, s.ctxFields(ctx))
+	s.logln(ctx, PanicLevel, args, nil)
 }
 
 // Fatalln logs a message at [FatalLevel] and calls os.Exit.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) Fatalln(args ...interface{}) {
-	s.logln(FatalLevel, args, nil)
+	s.logln(context.Background(), FatalLevel, args, nil)
 }
 
 // FatallnCtx logs a message at [FatalLevel] and calls os.Exit. Any fields
 // extracted from ctx by the Context option are added to the entry.
 // Spaces are always added between arguments.
 func (s *SugaredLogger) FatallnCtx(ctx context.Context, args ...interface{}) {
-	s.logln(FatalLevel, args, s.ctxFields(ctx))
+	s.logln(ctx, FatalLevel, args, nil)
 }
 
 // Sync flushes any buffered log entries.
@@ -573,23 +573,26 @@ func (s *SugaredLogger) Sync() error {
 	return s.base.Sync()
 }
 
-// ctxFields returns the fields extracted from ctx by the configured Context
-// option, as a slice of loosely-typed arguments suitable for the SugaredLogger
-// log path. It returns nil when no Context option is set or ctx is nil.
-func (s *SugaredLogger) ctxFields(ctx context.Context) []interface{} {
+// withCtxFields prepends the fields extracted from ctx by the configured
+// Context option to args. It returns args unchanged when no Context option is
+// set or ctx is nil.
+func (s *SugaredLogger) withCtxFields(ctx context.Context, args []interface{}) []interface{} {
 	if ctx == nil || s.base.contextFunc == nil {
-		return nil
+		return args
 	}
 	fields := s.base.contextFunc(ctx)
-	args := make([]interface{}, 0, len(fields))
-	for _, f := range fields {
-		args = append(args, f)
+	if len(fields) == 0 {
+		return args
 	}
-	return args
+	merged := make([]interface{}, 0, len(fields)+len(args))
+	for _, f := range fields {
+		merged = append(merged, f)
+	}
+	return append(merged, args...)
 }
 
 // log message with Sprint, Sprintf, or neither.
-func (s *SugaredLogger) log(lvl zapcore.Level, template string, fmtArgs []interface{}, context []interface{}) {
+func (s *SugaredLogger) log(ctx context.Context, lvl zapcore.Level, template string, fmtArgs []interface{}, context []interface{}) {
 	// If logging at this level is completely disabled, skip the overhead of
 	// string formatting.
 	if lvl < DPanicLevel && !s.base.Core().Enabled(lvl) {
@@ -597,20 +600,20 @@ func (s *SugaredLogger) log(lvl zapcore.Level, template string, fmtArgs []interf
 	}
 
 	msg := getMessage(template, fmtArgs)
-	if ce := s.base.Check(lvl, msg); ce != nil {
-		ce.Write(s.sweetenFields(context)...)
+	if ce := s.base.CheckCtx(ctx, lvl, msg); ce != nil {
+		ce.Write(s.sweetenFields(s.withCtxFields(ctx, context))...)
 	}
 }
 
 // logln message with Sprintln
-func (s *SugaredLogger) logln(lvl zapcore.Level, fmtArgs []interface{}, context []interface{}) {
+func (s *SugaredLogger) logln(ctx context.Context, lvl zapcore.Level, fmtArgs []interface{}, context []interface{}) {
 	if lvl < DPanicLevel && !s.base.Core().Enabled(lvl) {
 		return
 	}
 
 	msg := getMessageln(fmtArgs)
-	if ce := s.base.Check(lvl, msg); ce != nil {
-		ce.Write(s.sweetenFields(context)...)
+	if ce := s.base.CheckCtx(ctx, lvl, msg); ce != nil {
+		ce.Write(s.sweetenFields(s.withCtxFields(ctx, context))...)
 	}
 }
 

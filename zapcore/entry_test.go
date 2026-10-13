@@ -21,6 +21,7 @@
 package zapcore
 
 import (
+	"context"
 	"sync"
 	"testing"
 
@@ -209,6 +210,79 @@ func TestCheckedEntryBefore(t *testing.T) {
 		assert.Empty(t, ce2.before)
 		putCheckedEntry(ce2)
 	})
+}
+
+type entryCtxKey struct{}
+
+func TestEntryContext(t *testing.T) {
+	ctx := context.WithValue(context.Background(), entryCtxKey{}, "value")
+
+	t.Run("defaults to Background", func(t *testing.T) {
+		assert.Equal(t, context.Background(), Entry{}.Context())
+		assert.Equal(t, context.Background(), Entry{}.WithContext(nil).Context()) //nolint:staticcheck // intentionally nil
+	})
+
+	t.Run("WithContext returns a copy", func(t *testing.T) {
+		orig := Entry{Message: "msg"}
+		withCtx := orig.WithContext(ctx)
+		assert.Equal(t, ctx, withCtx.Context())
+		assert.Equal(t, "msg", withCtx.Message)
+		assert.Equal(t, context.Background(), orig.Context(), "Original entry must not be modified.")
+	})
+
+	t.Run("Background is equivalent to no context", func(t *testing.T) {
+		assert.Equal(t, Entry{Message: "msg"}, Entry{Message: "msg"}.WithContext(context.Background()))
+	})
+
+	t.Run("propagates to cores and hooks", func(t *testing.T) {
+		core := &recordingCore{}
+		var (
+			beforeCtx context.Context
+			afterHook = &ctxHook{}
+		)
+		var ce *CheckedEntry
+		ce = ce.AddCore(Entry{Message: "msg"}.WithContext(ctx), core)
+		ce = ce.Before(Entry{}, func(ent Entry, fields []Field) (Entry, []Field) {
+			beforeCtx = ent.Context()
+			return ent, fields
+		})
+		ce = ce.After(Entry{}, afterHook)
+		ce.Write()
+
+		assert.Equal(t, ctx, beforeCtx, "Pre-write hook should see the entry's context.")
+		assert.Equal(t, ctx, core.entry.Context(), "Core should see the entry's context.")
+		assert.Equal(t, ctx, afterHook.ctx, "Post-write hook should see the entry's context.")
+	})
+
+	t.Run("pre-write hooks may replace the context", func(t *testing.T) {
+		core := &recordingCore{}
+		var ce *CheckedEntry
+		ce = ce.AddCore(Entry{}, core)
+		ce = ce.Before(Entry{}, func(ent Entry, fields []Field) (Entry, []Field) {
+			return ent.WithContext(ctx), fields
+		})
+		ce.Write()
+
+		assert.Equal(t, ctx, core.entry.Context())
+	})
+
+	t.Run("context reset on pool reuse", func(t *testing.T) {
+		var ce *CheckedEntry
+		ce = ce.AddCore(Entry{}.WithContext(ctx), &recordingCore{})
+		ce.Write()
+
+		ce2 := getCheckedEntry()
+		assert.Equal(t, context.Background(), ce2.Context())
+		putCheckedEntry(ce2)
+	})
+}
+
+type ctxHook struct {
+	ctx context.Context
+}
+
+func (h *ctxHook) OnWrite(ce *CheckedEntry, _ []Field) {
+	h.ctx = ce.Context()
 }
 
 // recordingCore captures the last entry and fields written to it.

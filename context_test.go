@@ -227,3 +227,156 @@ func TestSugaredLoggerContextFields(t *testing.T) {
 		}
 	})
 }
+
+// ctxCore records the context seen by Check and Write.
+type ctxCore struct {
+	zapcore.Core
+
+	checkCtxs []context.Context
+}
+
+func (c *ctxCore) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
+	c.checkCtxs = append(c.checkCtxs, ent.Context())
+	if c.Enabled(ent.Level) {
+		return ce.AddCore(ent, c)
+	}
+	return ce
+}
+
+func newCtxCore(lvl zapcore.Level) (*ctxCore, *observer.ObservedLogs) {
+	core, logs := observer.New(lvl)
+	return &ctxCore{Core: core}, logs
+}
+
+func TestContextAvailableToCoresAndHooks(t *testing.T) {
+	ctx := ctxWithCorrelationID()
+
+	t.Run("Logger Ctx methods", func(t *testing.T) {
+		core, logs := newCtxCore(zapcore.DebugLevel)
+		logger := New(core) // no Context option needed
+
+		logger.DebugCtx(ctx, "m")
+		logger.InfoCtx(ctx, "m")
+		logger.WarnCtx(ctx, "m")
+		logger.ErrorCtx(ctx, "m")
+		logger.DPanicCtx(ctx, "m")
+		logger.LogCtx(ctx, InfoLevel, "m")
+		assert.Panics(t, func() { logger.PanicCtx(ctx, "m") })
+		stub := exit.WithStub(func() { logger.FatalCtx(ctx, "m") })
+		assert.True(t, stub.Exited)
+
+		require.Len(t, core.checkCtxs, 8)
+		for _, c := range core.checkCtxs {
+			assert.Equal(t, ctx, c, "Core.Check should see the log-site context.")
+		}
+		require.Len(t, logs.All(), 8)
+		for _, e := range logs.All() {
+			assert.Equal(t, ctx, e.Entry.Context(), "Core.Write should see the log-site context.")
+		}
+	})
+
+	t.Run("non-Ctx methods use Background", func(t *testing.T) {
+		core, logs := newCtxCore(zapcore.DebugLevel)
+		logger := New(core)
+
+		logger.Info("m")
+		logger.Sugar().Infow("m")
+
+		for _, c := range core.checkCtxs {
+			assert.Equal(t, context.Background(), c)
+		}
+		for _, e := range logs.All() {
+			assert.Equal(t, context.Background(), e.Entry.Context())
+		}
+	})
+
+	t.Run("CheckCtx", func(t *testing.T) {
+		core, logs := newCtxCore(zapcore.DebugLevel)
+		logger := New(core, correlationOption())
+
+		ce := logger.CheckCtx(ctx, InfoLevel, "m")
+		require.NotNil(t, ce)
+		assert.Equal(t, ctx, ce.Context())
+		ce.Write(String("extra", "value"))
+
+		require.Equal(t, []context.Context{ctx}, core.checkCtxs)
+		entries := logs.All()
+		require.Len(t, entries, 1)
+		assert.Equal(t, ctx, entries[0].Entry.Context())
+		assert.Equal(t, map[string]interface{}{"extra": "value"}, fieldMap(entries[0].Context),
+			"CheckCtx should not apply the Context option.")
+	})
+
+	t.Run("Hooks option", func(t *testing.T) {
+		var seen []context.Context
+		core, _ := observer.New(zapcore.DebugLevel)
+		logger := New(core, Hooks(func(ent zapcore.Entry) error {
+			seen = append(seen, ent.Context())
+			return nil
+		}))
+
+		logger.InfoCtx(ctx, "m")
+		logger.Sugar().InfowCtx(ctx, "m")
+		logger.Info("m")
+
+		assert.Equal(t, []context.Context{ctx, ctx, context.Background()}, seen)
+	})
+
+	t.Run("panic hook", func(t *testing.T) {
+		core, _ := observer.New(zapcore.DebugLevel)
+		hook := &ctxWriteHook{}
+		logger := New(core, WithPanicHook(hook))
+
+		logger.PanicCtx(ctx, "m")
+
+		assert.Equal(t, ctx, hook.ctx)
+	})
+
+	t.Run("SugaredLogger Ctx methods", func(t *testing.T) {
+		core, logs := newCtxCore(zapcore.DebugLevel)
+		sugar := New(core).Sugar()
+
+		sugar.InfoCtx(ctx, "m")
+		sugar.InfofCtx(ctx, "m %d", 1)
+		sugar.InfowCtx(ctx, "m", "k", "v")
+		sugar.InfolnCtx(ctx, "m")
+		sugar.LogCtx(ctx, InfoLevel, "m")
+		sugar.LogfCtx(ctx, InfoLevel, "m %d", 1)
+		sugar.LogwCtx(ctx, InfoLevel, "m", "k", "v")
+		sugar.LoglnCtx(ctx, InfoLevel, "m")
+
+		require.Len(t, core.checkCtxs, 8)
+		for _, c := range core.checkCtxs {
+			assert.Equal(t, ctx, c)
+		}
+		for _, e := range logs.All() {
+			assert.Equal(t, ctx, e.Entry.Context())
+		}
+	})
+
+	t.Run("Context option not invoked for disabled levels", func(t *testing.T) {
+		core, logs := observer.New(zapcore.InfoLevel)
+		var calls int
+		logger := New(core, Context(func(context.Context) []Field {
+			calls++
+			return nil
+		}))
+		sugar := logger.Sugar()
+
+		logger.DebugCtx(ctx, "m")
+		sugar.DebugCtx(ctx, "m")
+		sugar.DebugfCtx(ctx, "m")
+		sugar.DebugwCtx(ctx, "m")
+		sugar.DebuglnCtx(ctx, "m")
+		assert.Zero(t, calls)
+		assert.Zero(t, logs.Len())
+	})
+}
+
+type ctxWriteHook struct {
+	ctx context.Context
+}
+
+func (h *ctxWriteHook) OnWrite(ce *zapcore.CheckedEntry, _ []zapcore.Field) {
+	h.ctx = ce.Context()
+}

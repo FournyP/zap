@@ -21,6 +21,7 @@
 package zapcore
 
 import (
+	"context"
 	"fmt"
 	"runtime"
 	"strings"
@@ -147,6 +148,34 @@ type Entry struct {
 	Message    string
 	Caller     EntryCaller
 	Stack      string
+
+	ctx context.Context
+}
+
+// Context returns the context.Context associated with the entry, as passed
+// to a context-aware logging method like Logger.InfoCtx. Cores and hooks may
+// use it to read request-scoped values such as trace or span IDs.
+//
+// The returned context is always non-nil; it defaults to
+// context.Background() if the entry has no context.
+func (e Entry) Context() context.Context {
+	if e.ctx != nil {
+		return e.ctx
+	}
+	return context.Background()
+}
+
+// WithContext returns a copy of the entry associated with ctx.
+// A nil ctx removes any context from the entry.
+func (e Entry) WithContext(ctx context.Context) Entry {
+	// Entries without a context must stay equal to Entry literals
+	// so that code comparing entries (e.g., tests using zaptest/observer)
+	// is unaffected by context-unaware logging methods.
+	if ctx == context.Background() {
+		ctx = nil
+	}
+	e.ctx = ctx
+	return e
 }
 
 // CheckWriteHook is a custom action that may be executed after an entry is
